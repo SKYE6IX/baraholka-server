@@ -1,0 +1,28 @@
+{
+  "name": "baraholka-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "/dist/app.js",
+  "type": "module",
+  "scripts": {
+    "build": "rimraf dist && npx tsc",
+    "start": "node dist/app.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/app.js\"",
+    "lint": "npx eslint **/*.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.9.0",
+    "concurrently": "^9.1.0",
+    "eslint": "^9.14.0",
+    "prettier": "3.3.3",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.6.3"
+  }
+}
