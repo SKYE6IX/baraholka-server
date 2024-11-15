@@ -9,11 +9,15 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            "telegram/sessions": ["node_modules/telegram/sessions"]
+        }
     },
     "tsc-alias": {
         "resolveFullPaths": true
     },
-    "include": ["**/*.ts"],
+    "include": ["**/*.ts", "custom.d.ts", "packages/TelegramBot.js"],
     "exclude": ["node_modules"]
 }

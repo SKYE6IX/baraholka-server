@@ -4,16 +4,16 @@ import http, { Server } from "http";
 class ExpressServer {
     private app: Express;
     private port: number;
-    private serveHandler: Server;
+    private serverHandler: Server;
 
     constructor(port: number) {
         this.app = express();
         this.port = port;
-        this.serveHandler = http.createServer(this.app);
+        this.serverHandler = http.createServer(this.app);
     }
 
     public startServer() {
-        this.serveHandler.listen(this.port, () => {
+        this.serverHandler.listen(this.port, () => {
             console.log("Server start running on port " + this.port);
         });
     }
