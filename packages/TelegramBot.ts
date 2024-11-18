@@ -1,5 +1,6 @@
 import { TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
+import { NewMessage, NewMessageEvent } from "telegram/events";
 import readlineSync from "readline-sync";
 
 class TelegramBot {
@@ -22,6 +23,19 @@ class TelegramBot {
             onError: (err) => console.log(err),
         });
         this.client.session.save();
+    }
+
+    public async getAdsContent() {
+        await this.client.connect();
+        this.client.addEventHandler(
+            async (event: NewMessageEvent) => {
+                const media = await event.message.downloadMedia();
+                console.log(media);
+            },
+            new NewMessage({
+                chats: ["testch1992"],
+            })
+        );
     }
 }
 

@@ -1,0 +1,58 @@
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+}
+
+model Ad {
+    id        Int       @id @default(autoincrement())
+    user      User      @relation(fields: [userId], references: [id])
+    userId    Int       @unique
+    title     String
+    text      String
+    price     Float
+    createdAt DateTime
+    updatedAt DateTime
+    images    Image[]
+    location  Location?
+}
+
+model Image {
+    id        Int      @id @default(autoincrement())
+    url       String
+    ad        Ad       @relation(fields: [imageId], references: [id])
+    imageId   Int      @unique
+    createdAt DateTime
+}
+
+model Category {
+    id            Int           @id @default(autoincrement())
+    name          String
+    subCategories SubCategory[]
+}
+
+model SubCategory {
+    id         Int      @id @default(autoincrement())
+    category   Category @relation(fields: [categoryId], references: [id])
+    categoryId Int      @unique
+}
+
+model Location {
+    id      Int    @id @default(autoincrement())
+    country String
+    city    String
+    address String
+    ad      Ad     @relation(fields: [adId], references: [id])
+    adId    Int    @unique
+}
+
+model User {
+    id          Int    @id @default(autoincrement())
+    telegram_id String @unique
+    ads         Ad[]
+}
