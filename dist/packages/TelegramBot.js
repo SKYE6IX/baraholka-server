@@ -20,47 +20,20 @@ class TelegramBot {
         this.client.session.save();
     }
     async runNewMessageEvent(onNewMessage) {
-        const groupMessage = new Map();
+        // const groupMessage = new Map<number, NewMessageData>();
         await this.client.connect();
         this.client.addEventHandler(async (event) => {
             const message = event.message;
-            if (message.media) {
-                const buffer = (await this.client.downloadMedia(message.media));
+            // @ts-expect-error Type username wasn't added on sender type.
+            const userName = await message.sender?.username;
+            const media = message.media;
+            if (userName && media) {
+                const buffer = (await this.client.downloadMedia(media));
                 if (message.groupedId) {
-                    if (!groupMessage.has(message.groupedId.valueOf()) &&
-                        message.message) {
-                        groupMessage.set(message.groupedId.valueOf(), {
-                            message: message.text,
-                            user: {
-                                telegramId: message.sender?.id &&
-                                    BigInt(message.sender?.id.toString()),
-                                // @ts-expect-error username isn't in sender type
-                                userName: message.sender?.username,
-                            },
-                            photo: null,
-                            photos: [],
-                        });
-                    }
-                    const groupMessages = groupMessage.get(message.groupedId.valueOf());
-                    groupMessages?.photos.push(buffer);
-                    if (this.timeoutID)
-                        clearTimeout(this.timeoutID);
-                    this.timeoutID = setTimeout(() => {
-                        onNewMessage(groupMessages);
-                    }, 2500);
+                    // Message with multiple images
                 }
                 else {
-                    onNewMessage({
-                        message: message.text,
-                        user: {
-                            telegramId: message.sender?.id &&
-                                BigInt(message.sender?.id.toString()),
-                            // @ts-expect-error username isn't in sender type
-                            userName: message.sender?.username,
-                        },
-                        photo: buffer,
-                        photos: [],
-                    });
+                    // Message with single image
                 }
             }
             else {
@@ -72,3 +45,35 @@ class TelegramBot {
     }
 }
 export default TelegramBot;
+// const buffer = (await this.client.downloadMedia(message.media)) as Buffer;
+// if (message.groupedId) {
+//     if (!groupMessage.has(message.groupedId.valueOf()) && message.message) {
+//         groupMessage.set(message.groupedId.valueOf(), {
+//             message: message.text,
+//             user: {
+//                 telegramId: message.sender?.id && BigInt(message.sender?.id.toString()),
+//                 // @ts-expect-error username isn't in sender type
+//                 userName: message.sender?.username,
+//             },
+//             photo: null,
+//             photos: [],
+//         });
+//     }
+//     const groupMessages = groupMessage.get(message.groupedId.valueOf()) as NewMessageData;
+//     groupMessages?.photos.push(buffer);
+//     if (this.timeoutID) clearTimeout(this.timeoutID);
+//     this.timeoutID = setTimeout(() => {
+//         onNewMessage(groupMessages);
+//     }, 2500);
+// } else {
+// onNewMessage({
+//     message: message.text,
+//     user: {
+//         telegramId: message.sender?.id && BigInt(message.sender?.id.toString()),
+//         // @ts-expect-error username isn't in sender type
+//         userName: message.sender?.username,
+//     },
+//     photo: buffer,
+//     photos: [],
+//     });
+// }

@@ -2,17 +2,7 @@ import { TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
 import { NewMessage, NewMessageEvent } from "telegram/events";
 import readlineSync from "readline-sync";
-
-interface NewMessageData {
-    message: string;
-    user: {
-        telegramId: bigint | undefined;
-        userName: string | undefined;
-    };
-    photo: Buffer | null;
-    photos: Buffer[];
-}
-
+import { NewMessageData } from "types/parseData";
 class TelegramBot {
     private client: TelegramClient;
     private timeoutID: NodeJS.Timeout | null = null;
@@ -43,11 +33,13 @@ class TelegramBot {
         this.client.addEventHandler(
             async (event: NewMessageEvent) => {
                 const message = event.message;
-                if (message.media) {
-                    const buffer = (await this.client.downloadMedia(
-                        message.media
-                    )) as Buffer;
+                // @ts-expect-error Type username wasn't added on sender type.
+                const userName = await message.sender?.username;
+                const media = message.media;
+                if (userName && media) {
+                    const buffer = (await this.client.downloadMedia(media)) as Buffer;
                     if (message.groupedId) {
+                        // Message with multiple images
                         if (
                             !groupMessage.has(message.groupedId.valueOf()) &&
                             message.message
@@ -58,37 +50,38 @@ class TelegramBot {
                                     telegramId:
                                         message.sender?.id &&
                                         BigInt(message.sender?.id.toString()),
-                                    // @ts-expect-error username isn't in sender type
-                                    userName: message.sender?.username,
+                                    userName: userName,
                                 },
                                 photo: null,
                                 photos: [],
                             });
                         }
-                        const groupMessages = groupMessage.get(
+                        const getMessages = groupMessage.get(
                             message.groupedId.valueOf()
                         ) as NewMessageData;
-                        groupMessages?.photos.push(buffer);
+                        getMessages.photos.push(buffer);
                         if (this.timeoutID) clearTimeout(this.timeoutID);
-
                         this.timeoutID = setTimeout(() => {
-                            onNewMessage(groupMessages);
+                            onNewMessage(getMessages);
                         }, 2500);
                     } else {
+                        // Message with single image
                         onNewMessage({
                             message: message.text,
                             user: {
                                 telegramId:
                                     message.sender?.id &&
                                     BigInt(message.sender?.id.toString()),
-                                // @ts-expect-error username isn't in sender type
-                                userName: message.sender?.username,
+                                userName: userName,
                             },
                             photo: buffer,
                             photos: [],
                         });
                     }
                 } else {
+                    console.log(
+                        "Failed to process new message because it has no media or username"
+                    );
                     return;
                 }
             },

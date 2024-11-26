@@ -27,39 +27,36 @@ export function startBot() {
 }
 
 export async function parseData() {
-    telegramBot.runNewMessageEvent(async (messageData) => {
-        let user: User;
-        const userData = messageData.user as BaseUser;
-        const adData = await gptClient.parseMessage(messageData.message);
-        const existingUser = await isUserExist(userData);
-        if (existingUser) {
-            user = existingUser;
-        } else {
-            user = createNewUser(userData);
-        }
-        if (adData) {
-            const adObject: BaseAd = {
-                title: adData.title,
-                description: adData.description,
-                price: adData.price,
-                currency: "GEL",
-                source: "TELEGRAM_AD",
-                location: "",
-            };
-            if (messageData.photo) {
-                const url = (await S3.uploadSingleImage(
-                    messageData.photo,
-                    adData.title
-                )) as string;
-                const ad = await createNewAd(user.id, adObject, url);
-                console.log(ad);
-            } else if (messageData.photos) {
-                const urlList = await S3.uploadMultipleImage(
-                    messageData.photos,
-                    adData.title
-                );
-                console.log(urlList);
-            }
-        }
-    });
+    telegramBot.runNewMessageEvent(async (messageData) => {});
 }
+
+// let user: User;
+// const userData = messageData.user as BaseUser;
+// const adData = await gptClient.parseMessage(messageData.message);
+// const existingUser = await isUserExist(userData);
+// if (existingUser) {
+//     user = existingUser;
+// } else {
+//     user = createNewUser(userData);
+// }
+// if (adData) {
+//     const adObject: BaseAd = {
+//         title: adData.title,
+//         description: adData.description,
+//         price: adData.price,
+//         currency: "GEL",
+//         source: "TELEGRAM_AD",
+//         location: "",
+//     };
+//     if (messageData.photo) {
+//         const url = (await S3.uploadSingleImage(
+//             messageData.photo,
+//             adData.title
+//         )) as string;
+//         const ad = await createNewAd(user.id, adObject, url);
+//         console.log(ad);
+//     } else if (messageData.photos) {
+//         const urlList = await S3.uploadMultipleImage(messageData.photos, adData.title);
+//         console.log(urlList);
+//     }
+// }
