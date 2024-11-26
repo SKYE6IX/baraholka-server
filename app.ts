@@ -1,26 +1,21 @@
 import "dotenv/config";
 import ExpressServer from "./packages/ExpressServer";
-import TelegramBot from "./packages/TelegramBot";
-import GPTClient from "packages/GPTClient";
+import S3 from "packages/S3";
+import { startBot, parseData } from "services/parseServices";
 
-const {
-    TELEGRAM_API_ID,
-    TELEGRAM_API_HASH,
-    TELEGRAM_SESSIONS_ID,
-    OPEN_AI_KEY,
-    OPEN_AI_ORG_ID,
-    OPEN_AI_PROJECT_ID,
-} = process.env;
-const server = new ExpressServer(3000);
+const PORT = 3000;
 
-const telegramBot = new TelegramBot(
-    Number(TELEGRAM_API_ID),
-    TELEGRAM_API_HASH,
-    TELEGRAM_SESSIONS_ID
-);
+// Instance for the Server
+const server = new ExpressServer(PORT);
 
-const gptClient = new GPTClient(OPEN_AI_KEY, OPEN_AI_ORG_ID, OPEN_AI_PROJECT_ID);
+// AWS S3 instance
+new S3();
 
-// telegramBot.startBot();
-// telegramBot.getAdsContent();
+// Starting gramJS bot for telegram
+startBot();
+
+// Parsing data from gramJs and turning into ads
+parseData();
+
+// Starting sever
 server.startServer();

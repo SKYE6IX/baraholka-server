@@ -9,50 +9,68 @@ datasource db {
     directUrl = env("DIRECT_URL")
 }
 
+model health_check {
+    id         Int       @id @default(autoincrement())
+    updated_at DateTime? @default(now()) @db.Timestamptz(6)
+}
+
 model Ad {
-    id        Int       @id @default(autoincrement())
-    user      User      @relation(fields: [userId], references: [id])
-    userId    Int       @unique
-    title     String
-    text      String
-    price     Float
-    createdAt DateTime
-    updatedAt DateTime
-    images    Image[]
-    location  Location?
+    id          String    @id @default(uuid())
+    user        User      @relation(fields: [userId], references: [id])
+    userId      String    @unique
+    title       String
+    description String
+    price       Float
+    currency    Currency  @default(GEL)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @default(now())
+    images      Image[]
+    location    Location?
+    source      Source    @default(TELEGRAM_AD)
 }
 
 model Image {
-    id        Int      @id @default(autoincrement())
+    id        String   @id @default(uuid())
     url       String
-    ad        Ad       @relation(fields: [imageId], references: [id])
-    imageId   Int      @unique
-    createdAt DateTime
+    ad        Ad       @relation(fields: [adId], references: [id])
+    adId      String   @unique
+    createdAt DateTime @default(now())
 }
 
 model Category {
-    id            Int           @id @default(autoincrement())
+    id            String        @id @default(uuid())
     name          String
     subCategories SubCategory[]
 }
 
 model SubCategory {
-    id         Int      @id @default(autoincrement())
+    id         String   @id @default(uuid())
     category   Category @relation(fields: [categoryId], references: [id])
-    categoryId Int      @unique
+    categoryId String   @unique
 }
 
 model Location {
-    id      Int    @id @default(autoincrement())
-    country String
-    city    String
-    address String
-    ad      Ad     @relation(fields: [adId], references: [id])
-    adId    Int    @unique
+    id       String @id @default(uuid())
+    country  String
+    city     String
+    location String
+    ad       Ad     @relation(fields: [adId], references: [id])
+    adId     String @unique
 }
 
 model User {
-    id          Int    @id @default(autoincrement())
-    telegram_id String @unique
-    ads         Ad[]
+    id         String @id @default(uuid())
+    telegramId BigInt @unique @db.BigInt
+    userName   String
+    ads        Ad[]
+}
+
+enum Source {
+    TELEGRAM_AD
+    SITE_AD
+}
+
+enum Currency {
+    GEL
+    USD
 }
