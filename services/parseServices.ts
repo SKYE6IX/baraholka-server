@@ -3,8 +3,9 @@ import GPTClient from "packages/GPTClient";
 import S3 from "packages/S3";
 import { createNewUser, isUserExist } from "./userServices";
 import { createNewAd } from "./adService";
-import { BaseUser, User } from "types/user";
+import { User } from "types/user";
 import { BaseAd } from "types/ad";
+import { NewMessageData, ResolveParseData } from "types/parseData";
 
 const {
     TELEGRAM_API_ID,
@@ -26,37 +27,63 @@ export function startBot() {
     telegramBot.startBot();
 }
 
-export async function parseData() {
-    telegramBot.runNewMessageEvent(async (messageData) => {});
+async function getNormalizedData(message: string) {
+    try {
+        const response = await gptClient.parseMessage(message);
+        if (response) {
+            const ads = JSON.parse(response) as ResolveParseData;
+            return ads;
+        }
+    } catch (error) {
+        console.log("Unable to parse the message: \n" + error);
+    }
 }
 
-// let user: User;
-// const userData = messageData.user as BaseUser;
-// const adData = await gptClient.parseMessage(messageData.message);
-// const existingUser = await isUserExist(userData);
-// if (existingUser) {
-//     user = existingUser;
-// } else {
-//     user = createNewUser(userData);
-// }
-// if (adData) {
-//     const adObject: BaseAd = {
-//         title: adData.title,
-//         description: adData.description,
-//         price: adData.price,
-//         currency: "GEL",
-//         source: "TELEGRAM_AD",
-//         location: "",
-//     };
-//     if (messageData.photo) {
-//         const url = (await S3.uploadSingleImage(
-//             messageData.photo,
-//             adData.title
-//         )) as string;
-//         const ad = await createNewAd(user.id, adObject, url);
-//         console.log(ad);
-//     } else if (messageData.photos) {
-//         const urlList = await S3.uploadMultipleImage(messageData.photos, adData.title);
-//         console.log(urlList);
-//     }
-// }
+async function getMediaUrl(data: NewMessageData, title: string) {
+    const tempArray: string[] = [];
+    if (data.photo) {
+        const url = (await S3.uploadSingleImage(data.photo, title)) as string;
+        tempArray.push(url);
+        return tempArray;
+    } else if (data.photos) {
+        const urlList = (await S3.uploadMultipleImage(data.photos, title)) as string[];
+        return urlList;
+    }
+}
+
+export async function parseData() {
+    try {
+        telegramBot.runNewMessageEvent(async (messageData) => {
+            const userData = messageData.user as User;
+            const adsData = await getNormalizedData(messageData.message);
+            if (adsData) {
+                let user: User;
+                const existingUser = await isUserExist(userData);
+                if (existingUser) {
+                    user = existingUser;
+                } else {
+                    user = (await createNewUser(userData)) as User;
+                }
+                const mediaUrl = await getMediaUrl(messageData, adsData.title);
+                const newAd: BaseAd = {
+                    userId: user.id,
+                    title: adsData.title,
+                    description: adsData.description,
+                    price: adsData.price,
+                    currency: adsData.currency,
+                    source: "TELEGRAM_AD",
+                    location: {
+                        country: "Georgia",
+                        city: "Tbilisi",
+                        location: adsData.location,
+                    },
+                };
+                if (mediaUrl) {
+                    await createNewAd(newAd, mediaUrl);
+                }
+            }
+        });
+    } catch (error) {
+        console.log("Unable to run new Message event: \n" + error);
+    }
+}

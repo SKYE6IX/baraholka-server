@@ -1,13 +1,15 @@
 import prismaClient from "../prisma/index.js";
 class Ad {
     constructor(adsData) {
+        this.userId = adsData.userId;
         this.title = adsData.title;
         this.description = adsData.description;
         this.price = adsData.price;
         this.currency = adsData.currency;
         this.source = adsData.source;
+        this.location = adsData.location;
     }
-    async insertNewAd(authorId, url) {
+    async insertNewAd(images) {
         const ad = await prismaClient.ad.create({
             data: {
                 title: this.title,
@@ -16,9 +18,18 @@ class Ad {
                 currency: this.currency,
                 source: this.source,
                 images: {
-                    create: [{ url: url }],
+                    createMany: {
+                        data: images,
+                    },
                 },
-                userId: authorId,
+                userId: this.userId,
+                location: {
+                    create: {
+                        country: this.location.country,
+                        city: this.location.city,
+                        location: this.location.location,
+                    },
+                },
             },
         });
         return ad;

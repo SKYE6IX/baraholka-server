@@ -18,6 +18,7 @@ class S3 {
             return S3.instance;
         }
     }
+
     private static replaceTitle(title: string) {
         const pattern = new RegExp(/[\s\p{P}]+/gu);
         if (pattern.test(title)) {
@@ -26,10 +27,12 @@ class S3 {
             return title.toLowerCase();
         }
     }
+
     private static getUrl(key: string) {
         const { AWS_BUCKET, AWS_REGION } = process.env;
         return `https://${AWS_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${key}`;
     }
+
     public static async uploadSingleImage(imageBuffer: Buffer, adTitle: string) {
         try {
             const format = (await sharp(imageBuffer).metadata()).format;

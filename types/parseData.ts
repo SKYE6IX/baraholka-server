@@ -9,3 +9,10 @@ export interface NewMessageData {
     photo: Buffer | null;
     photos: Buffer[];
 }
+export interface ResolveParseData {
+    title: string;
+    price: number;
+    currency: "GEL" | "USD";
+    location: string | null;
+    description: string;
+}

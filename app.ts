@@ -2,6 +2,7 @@ import "dotenv/config";
 import ExpressServer from "./packages/ExpressServer";
 import S3 from "packages/S3";
 import { startBot, parseData } from "services/parseServices";
+// import User from "models/User";
 
 const PORT = 3000;
 

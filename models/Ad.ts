@@ -1,22 +1,26 @@
 import prismaClient from "prisma";
-import { BaseAd } from "types/ad";
+import { BaseAd, Location, Image } from "types/ad";
 
 class Ad {
+    private userId: string;
     private title: string;
     private description: string;
     private price: number;
     private currency: "GEL" | "USD";
     private source: "TELEGRAM_AD" | "SITE_AD";
+    private location: Location;
 
     constructor(adsData: BaseAd) {
+        this.userId = adsData.userId;
         this.title = adsData.title;
         this.description = adsData.description;
         this.price = adsData.price;
         this.currency = adsData.currency;
         this.source = adsData.source;
+        this.location = adsData.location;
     }
 
-    public async insertNewAd(authorId: string, url: string) {
+    public async insertNewAd(images: Image[]) {
         const ad = await prismaClient.ad.create({
             data: {
                 title: this.title,
@@ -25,13 +29,21 @@ class Ad {
                 currency: this.currency,
                 source: this.source,
                 images: {
-                    create: [{ url: url }],
+                    createMany: {
+                        data: images,
+                    },
                 },
-                userId: authorId,
+                userId: this.userId,
+                location: {
+                    create: {
+                        country: this.location.country,
+                        city: this.location.city,
+                        location: this.location.location,
+                    },
+                },
             },
         });
         return ad;
     }
 }
-
 export default Ad;

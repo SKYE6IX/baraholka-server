@@ -16,24 +16,24 @@ model health_check {
 
 model Ad {
     id          String    @id @default(uuid())
-    user        User      @relation(fields: [userId], references: [id])
-    userId      String    @unique
+    user        User      @relation("Ads", fields: [userId], references: [id])
+    userId      String
     title       String
     description String
     price       Float
     currency    Currency  @default(GEL)
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @default(now())
-    images      Image[]
-    location    Location?
+    images      Image[]   @relation("Images")
+    location    Location? @relation("Location")
     source      Source    @default(TELEGRAM_AD)
 }
 
 model Image {
     id        String   @id @default(uuid())
     url       String
-    ad        Ad       @relation(fields: [adId], references: [id])
-    adId      String   @unique
+    ad        Ad       @relation("Images", fields: [adId], references: [id])
+    adId      String
     createdAt DateTime @default(now())
 }
 
@@ -46,23 +46,23 @@ model Category {
 model SubCategory {
     id         String   @id @default(uuid())
     category   Category @relation(fields: [categoryId], references: [id])
-    categoryId String   @unique
+    categoryId String
 }
 
 model Location {
-    id       String @id @default(uuid())
+    id       String  @id @default(uuid())
     country  String
     city     String
-    location String
-    ad       Ad     @relation(fields: [adId], references: [id])
-    adId     String @unique
+    location String?
+    ad       Ad      @relation("Location", fields: [adId], references: [id])
+    adId     String  @unique
 }
 
 model User {
     id         String @id @default(uuid())
     telegramId BigInt @unique @db.BigInt
     userName   String
-    ads        Ad[]
+    ads        Ad[]   @relation("Ads")
 }
 
 enum Source {

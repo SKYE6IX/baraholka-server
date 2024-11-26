@@ -1,12 +1,18 @@
 import Ad from "../models/Ad.js";
-export async function createNewAd(userId, adData, url) {
-    if (!userId || !adData) {
+export async function createNewAd(adData, urls) {
+    if (!adData || !urls) {
         return;
     }
     try {
         const newAd = new Ad(adData);
+        const imagesUrl = urls.map((u) => {
+            return {
+                url: u,
+            };
+        });
+        const response = await newAd.insertNewAd(imagesUrl);
         console.log("Successfully add new AD to Database");
-        return await newAd.insertNewAd(userId, url);
+        return response;
     }
     catch (error) {
         console.log(error);

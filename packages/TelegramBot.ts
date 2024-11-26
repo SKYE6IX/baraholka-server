@@ -33,7 +33,7 @@ class TelegramBot {
         this.client.addEventHandler(
             async (event: NewMessageEvent) => {
                 const message = event.message;
-                // @ts-expect-error Type username wasn't added on sender type.
+                // @ts-expect-error Type username isn't added on sender type.
                 const userName = await message.sender?.username;
                 const media = message.media;
                 if (userName && media) {
