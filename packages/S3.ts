@@ -10,6 +10,7 @@ import { fromEnv } from "@aws-sdk/credential-providers";
 
 class S3 {
     private static instance: S3;
+    // @ts-expect-error The insance is a sigleton
     private s3Client: S3Client;
 
     constructor() {
@@ -52,6 +53,7 @@ class S3 {
         );
         return this.getUrl(key);
     }
+
     public static async uploadMultipleImage(imageBuffers: Buffer[], adTitle: string) {
         let prefixNum = 1;
         const urlList: string[] = [];
