@@ -1,5 +1,6 @@
 import Ad from "models/Ad";
 import { BaseAd } from "types/ad";
+import handleError from "./handleError";
 
 export async function createNewAd(adData: BaseAd, urls: string[]) {
     if (!adData || !urls) {
@@ -16,7 +17,7 @@ export async function createNewAd(adData: BaseAd, urls: string[]) {
         console.log("Successfully add new AD to Database");
         return response;
     } catch (error) {
-        console.log(error);
+        handleError(error);
         console.log("Failed to add AD to database ");
     }
 }

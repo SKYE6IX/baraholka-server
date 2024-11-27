@@ -1,5 +1,6 @@
 import User from "models/User";
 import { BaseUser } from "types/user";
+import handleError from "./handleError";
 
 export async function isUserExist(userData: BaseUser) {
     if (!userData.telegramId) {
@@ -9,7 +10,7 @@ export async function isUserExist(userData: BaseUser) {
     try {
         return await User.existingUser(userData.telegramId);
     } catch (error) {
-        console.log(error);
+        handleError(error);
     }
 }
 
@@ -21,6 +22,6 @@ export async function createNewUser(userData: BaseUser) {
         const user = new User(userData);
         return user.insertNewUser();
     } catch (error) {
-        console.log(error);
+        handleError(error);
     }
 }

@@ -1,5 +1,10 @@
 import "dotenv/config";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+    S3Client,
+    PutObjectCommand,
+    DeleteObjectCommand,
+    DeleteObjectsCommand,
+} from "@aws-sdk/client-s3";
 import sharp from "sharp";
 import { fromEnv } from "@aws-sdk/credential-providers";
 
@@ -34,55 +39,66 @@ class S3 {
     }
 
     public static async uploadSingleImage(imageBuffer: Buffer, adTitle: string) {
-        try {
-            const format = (await sharp(imageBuffer).metadata()).format;
-            const title = this.replaceTitle(adTitle);
-            const key = `${title}.${format}`;
-            await this.instance.s3Client.send(
-                new PutObjectCommand({
-                    Bucket: process.env.AWS_BUCKET,
-                    Body: imageBuffer,
-                    Key: key,
-                    ContentType: `image/${format}`,
-                })
-            );
-            return this.getUrl(key);
-        } catch (error) {
-            console.log(error);
-            console.log("Unable to upload object");
-        }
+        const format = (await sharp(imageBuffer).metadata()).format;
+        const title = this.replaceTitle(adTitle);
+        const key = `${title}.${format}`;
+        await this.instance.s3Client.send(
+            new PutObjectCommand({
+                Bucket: process.env.AWS_BUCKET,
+                Body: imageBuffer,
+                Key: key,
+                ContentType: `image/${format}`,
+            })
+        );
+        return this.getUrl(key);
     }
-
     public static async uploadMultipleImage(imageBuffers: Buffer[], adTitle: string) {
         let prefixNum = 1;
         const urlList: string[] = [];
-        try {
-            const title = this.replaceTitle(adTitle);
-            const photos = imageBuffers.map(async (buf) => {
-                const format = (await sharp(buf).metadata()).format;
-                return {
-                    Key: `${title + "_" + prefixNum++}.${format}`,
-                    Body: buf,
-                    ContentType: `image/${format}`,
-                };
-            });
-            for (const photo of photos) {
-                await this.instance.s3Client.send(
-                    new PutObjectCommand({
-                        Bucket: "remarket-ads",
-                        Body: (await photo).Body,
-                        Key: (await photo).Key,
-                        ContentType: (await photo).ContentType,
-                    })
-                );
-                const url = this.getUrl((await photo).Key);
-                urlList.push(url);
-            }
-            return urlList;
-        } catch (error) {
-            console.log(error);
-            console.log("Unable to upload object");
+        const title = this.replaceTitle(adTitle);
+        const photos = imageBuffers.map(async (buf) => {
+            const format = (await sharp(buf).metadata()).format;
+            return {
+                Key: `${title + "_" + prefixNum++}.${format}`,
+                Body: buf,
+                ContentType: `image/${format}`,
+            };
+        });
+        for (const photo of photos) {
+            await this.instance.s3Client.send(
+                new PutObjectCommand({
+                    Bucket: "remarket-ads",
+                    Body: (await photo).Body,
+                    Key: (await photo).Key,
+                    ContentType: (await photo).ContentType,
+                })
+            );
+            const url = this.getUrl((await photo).Key);
+            urlList.push(url);
         }
+        return urlList;
+    }
+
+    public static async deleteSingleImage(key: string) {
+        const response = await this.instance.s3Client.send(
+            new DeleteObjectCommand({
+                Bucket: process.env.AWS_BUCKET,
+                Key: key,
+            })
+        );
+        return response;
+    }
+
+    public static async deleteMultipleImage(keys: string[]) {
+        const response = await this.instance.s3Client.send(
+            new DeleteObjectsCommand({
+                Bucket: process.env.AWS_BUCKET,
+                Delete: {
+                    Objects: keys.map((key) => ({ Key: key })),
+                },
+            })
+        );
+        return response;
     }
 }
 export default S3;

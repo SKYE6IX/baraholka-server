@@ -1,4 +1,5 @@
 import Ad from "../models/Ad.js";
+import handleError from "./handleError.js";
 export async function createNewAd(adData, urls) {
     if (!adData || !urls) {
         return;
@@ -15,7 +16,7 @@ export async function createNewAd(adData, urls) {
         return response;
     }
     catch (error) {
-        console.log(error);
+        handleError(error);
         console.log("Failed to add AD to database ");
     }
 }

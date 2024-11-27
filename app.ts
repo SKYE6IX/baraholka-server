@@ -12,6 +12,18 @@ const server = new ExpressServer(PORT);
 // AWS S3 instance
 new S3();
 
+// (async () => {
+//     try {
+//         const res = await S3.deleteSingleImage(
+//             "https://remarket-ads.s3.eu-north-1.amazonaws.com/macbook_pro_14_m2_pro_16_512_space_gray.jpeg"
+//         );
+//         console.log("Succeasfully delete");
+//         console.log(res);
+//     } catch (error) {
+//         console.log(error);
+//     }
+// })();
+
 // Starting gramJS bot for telegram
 startBot();
 

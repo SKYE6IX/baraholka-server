@@ -6,6 +6,7 @@ import { createNewAd } from "./adService";
 import { User } from "types/user";
 import { BaseAd } from "types/ad";
 import { NewMessageData, ResolveParseData } from "types/parseData";
+import handleError from "./handleError";
 
 const {
     TELEGRAM_API_ID,
@@ -35,19 +36,48 @@ async function getNormalizedData(message: string) {
             return ads;
         }
     } catch (error) {
-        console.log("Unable to parse the message: \n" + error);
+        handleError(error);
     }
 }
 
 async function getMediaUrl(data: NewMessageData, title: string) {
-    const tempArray: string[] = [];
-    if (data.photo) {
-        const url = (await S3.uploadSingleImage(data.photo, title)) as string;
-        tempArray.push(url);
-        return tempArray;
-    } else if (data.photos) {
-        const urlList = (await S3.uploadMultipleImage(data.photos, title)) as string[];
-        return urlList;
+    try {
+        const tempArray: string[] = [];
+        if (data.photo) {
+            const url = (await S3.uploadSingleImage(data.photo, title)) as string;
+            tempArray.push(url);
+            return tempArray;
+        } else if (data.photos) {
+            const urlList = (await S3.uploadMultipleImage(
+                data.photos,
+                title
+            )) as string[];
+            return urlList;
+        }
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+async function removeMedia(urls: string[], title: string) {
+    try {
+        const pattern = new RegExp(/[\s\p{P}]+/gu);
+        const convertTitle = title.replace(pattern, "_").toLowerCase();
+        if (urls.length > 1) {
+            const keys = urls.sort().map((url, i) => {
+                const startIndex = url.indexOf(convertTitle + "_" + (i + 1));
+                const key = url.substring(startIndex, url.length);
+                return key;
+            });
+            await S3.deleteMultipleImage(keys);
+        } else if (urls.length <= 1) {
+            const singleUrl = urls[0];
+            const startIndex = singleUrl.indexOf(convertTitle);
+            const key = singleUrl.substring(startIndex, singleUrl.length);
+            await S3.deleteSingleImage(key);
+        }
+    } catch (error) {
+        handleError(error);
     }
 }
 
@@ -79,11 +109,14 @@ export async function parseData() {
                     },
                 };
                 if (mediaUrl) {
-                    await createNewAd(newAd, mediaUrl);
+                    const response = await createNewAd(newAd, mediaUrl);
+                    if (!response) {
+                        removeMedia(mediaUrl, newAd.title);
+                    }
                 }
             }
         });
     } catch (error) {
-        console.log("Unable to run new Message event: \n" + error);
+        handleError(error);
     }
 }

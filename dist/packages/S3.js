@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 import { fromEnv } from "@aws-sdk/credential-providers";
 class S3 {
@@ -29,52 +29,56 @@ class S3 {
         return `https://${AWS_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${key}`;
     }
     static async uploadSingleImage(imageBuffer, adTitle) {
-        try {
-            const format = (await sharp(imageBuffer).metadata()).format;
-            const title = this.replaceTitle(adTitle);
-            const key = `${title}.${format}`;
-            await this.instance.s3Client.send(new PutObjectCommand({
-                Bucket: process.env.AWS_BUCKET,
-                Body: imageBuffer,
-                Key: key,
-                ContentType: `image/${format}`,
-            }));
-            return this.getUrl(key);
-        }
-        catch (error) {
-            console.log(error);
-            console.log("Unable to upload object");
-        }
+        const format = (await sharp(imageBuffer).metadata()).format;
+        const title = this.replaceTitle(adTitle);
+        const key = `${title}.${format}`;
+        await this.instance.s3Client.send(new PutObjectCommand({
+            Bucket: process.env.AWS_BUCKET,
+            Body: imageBuffer,
+            Key: key,
+            ContentType: `image/${format}`,
+        }));
+        return this.getUrl(key);
     }
     static async uploadMultipleImage(imageBuffers, adTitle) {
         let prefixNum = 1;
         const urlList = [];
-        try {
-            const title = this.replaceTitle(adTitle);
-            const photos = imageBuffers.map(async (buf) => {
-                const format = (await sharp(buf).metadata()).format;
-                return {
-                    Key: `${title + "_" + prefixNum++}.${format}`,
-                    Body: buf,
-                    ContentType: `image/${format}`,
-                };
-            });
-            for (const photo of photos) {
-                await this.instance.s3Client.send(new PutObjectCommand({
-                    Bucket: "remarket-ads",
-                    Body: (await photo).Body,
-                    Key: (await photo).Key,
-                    ContentType: (await photo).ContentType,
-                }));
-                const url = this.getUrl((await photo).Key);
-                urlList.push(url);
-            }
-            return urlList;
+        const title = this.replaceTitle(adTitle);
+        const photos = imageBuffers.map(async (buf) => {
+            const format = (await sharp(buf).metadata()).format;
+            return {
+                Key: `${title + "_" + prefixNum++}.${format}`,
+                Body: buf,
+                ContentType: `image/${format}`,
+            };
+        });
+        for (const photo of photos) {
+            await this.instance.s3Client.send(new PutObjectCommand({
+                Bucket: "remarket-ads",
+                Body: (await photo).Body,
+                Key: (await photo).Key,
+                ContentType: (await photo).ContentType,
+            }));
+            const url = this.getUrl((await photo).Key);
+            urlList.push(url);
         }
-        catch (error) {
-            console.log(error);
-            console.log("Unable to upload object");
-        }
+        return urlList;
+    }
+    static async deleteSingleImage(key) {
+        const response = await this.instance.s3Client.send(new DeleteObjectCommand({
+            Bucket: process.env.AWS_BUCKET,
+            Key: key,
+        }));
+        return response;
+    }
+    static async deleteMultipleImage(keys) {
+        const response = await this.instance.s3Client.send(new DeleteObjectsCommand({
+            Bucket: process.env.AWS_BUCKET,
+            Delete: {
+                Objects: keys.map((key) => ({ Key: key })),
+            },
+        }));
+        return response;
     }
 }
 export default S3;
