@@ -20,59 +20,65 @@ class TelegramBot {
         this.client.session.save();
     }
     async runNewMessageEvent(onNewMessage) {
-        const groupMessage = new Map();
-        await this.client.connect();
-        this.client.addEventHandler(async (event) => {
-            const message = event.message;
-            // @ts-expect-error Type username isn't added on sender type.
-            const userName = await message.sender?.username;
-            const media = message.media;
-            if (userName && media) {
-                const buffer = (await this.client.downloadMedia(media));
-                if (message.groupedId) {
-                    // Message with multiple images
-                    if (!groupMessage.has(message.groupedId.valueOf()) &&
-                        message.message) {
-                        groupMessage.set(message.groupedId.valueOf(), {
+        const isConnected = await this.client.connect();
+        if (isConnected) {
+            const groupMessage = new Map();
+            this.client.addEventHandler(async (event) => {
+                const message = event.message;
+                // @ts-expect-error Type username isn't added on sender type.
+                const userName = await message.sender?.username;
+                const media = message.media;
+                if (userName && media) {
+                    const buffer = (await this.client.downloadMedia(media));
+                    if (message.groupedId) {
+                        // Message with multiple images
+                        if (!groupMessage.has(message.groupedId.valueOf()) &&
+                            message.message) {
+                            groupMessage.set(message.groupedId.valueOf(), {
+                                message: message.text,
+                                user: {
+                                    telegramId: message.sender?.id &&
+                                        BigInt(message.sender?.id.toString()),
+                                    userName: userName,
+                                },
+                                photo: null,
+                                photos: [],
+                            });
+                        }
+                        const getMessages = groupMessage.get(message.groupedId.valueOf());
+                        getMessages.photos.push(buffer);
+                        if (this.timeoutID)
+                            clearTimeout(this.timeoutID);
+                        this.timeoutID = setTimeout(() => {
+                            onNewMessage(getMessages);
+                        }, 2500);
+                    }
+                    else {
+                        // Message with single image
+                        onNewMessage({
                             message: message.text,
                             user: {
                                 telegramId: message.sender?.id &&
                                     BigInt(message.sender?.id.toString()),
                                 userName: userName,
                             },
-                            photo: null,
+                            photo: buffer,
                             photos: [],
                         });
                     }
-                    const getMessages = groupMessage.get(message.groupedId.valueOf());
-                    getMessages.photos.push(buffer);
-                    if (this.timeoutID)
-                        clearTimeout(this.timeoutID);
-                    this.timeoutID = setTimeout(() => {
-                        onNewMessage(getMessages);
-                    }, 2500);
                 }
                 else {
-                    // Message with single image
-                    onNewMessage({
-                        message: message.text,
-                        user: {
-                            telegramId: message.sender?.id &&
-                                BigInt(message.sender?.id.toString()),
-                            userName: userName,
-                        },
-                        photo: buffer,
-                        photos: [],
-                    });
+                    console.log("Failed to process new message because there is no media or username");
+                    return;
                 }
-            }
-            else {
-                console.log("Failed to process new message because it has no media or username");
-                return;
-            }
-        }, new NewMessage({
-            chats: ["testch1992", "market_place1992"],
-        }));
+            }, new NewMessage({
+                chats: ["testch1992", "market_place1992"],
+            }));
+        }
+        else {
+            console.log("GramJS Bot is unable to connect........");
+            return;
+        }
     }
 }
 export default TelegramBot;

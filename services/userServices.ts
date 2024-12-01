@@ -1,16 +1,29 @@
+import { Prisma } from "@prisma/client";
 import User from "models/User";
 import { BaseUser } from "types/user";
-import handleError from "./handleError";
+import Logger from "packages/Logger";
+
+const logger = new Logger({ service: "USER SERVICE" });
 
 export async function isUserExist(userData: BaseUser) {
     if (!userData.telegramId) {
-        console.log("Telegram ID isn't provided");
         return null;
     }
     try {
-        return await User.existingUser(userData.telegramId);
+        const existingUser = await User.existingUser(userData.telegramId);
+        logger.infoLogging({
+            message: "[Successfully Found User]",
+        });
+        return existingUser;
     } catch (error) {
-        handleError(error);
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            const message = `[Failed To Find Exist User]\n ${error.message}`;
+            logger.errorLogging({
+                message: message,
+            });
+        } else {
+            console.error("[Unknown Error Occur In Find User]:\n" + error);
+        }
     }
 }
 
@@ -20,8 +33,19 @@ export async function createNewUser(userData: BaseUser) {
     }
     try {
         const user = new User(userData);
-        return user.insertNewUser();
+        const newUser = await user.insertNewUser();
+        logger.infoLogging({
+            message: "[Successfully Added New User]\n",
+        });
+        return newUser;
     } catch (error) {
-        handleError(error);
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            const message = `[Failed To Create New User]\n ${error.message}`;
+            logger.errorLogging({
+                message: message,
+            });
+        } else {
+            console.error("[Unknown Error Occur In Create New User]:\n" + error);
+        }
     }
 }

@@ -24,6 +24,7 @@
         "readline-sync": "^1.4.10",
         "sharp": "^0.33.5",
         "telegram": "^2.26.6",
+        "winston": "^3.17.0",
         "ws": "^8.18.0"
     },
     "devDependencies": {

@@ -34,5 +34,16 @@ class Ad {
         });
         return ad;
     }
+    static async removeAd(adId) {
+        const response = await prismaClient.ad.delete({
+            where: {
+                id: adId,
+            },
+            include: {
+                images: true,
+            },
+        });
+        return response;
+    }
 }
 export default Ad;

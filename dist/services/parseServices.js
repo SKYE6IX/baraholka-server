@@ -1,12 +1,15 @@
+import OpenAI from "openai";
+import { S3ServiceException } from "@aws-sdk/client-s3";
 import TelegramBot from "../packages/TelegramBot.js";
 import GPTClient from "../packages/GPTClient.js";
 import S3 from "../packages/S3.js";
 import { createNewUser, isUserExist } from "./userServices.js";
 import { createNewAd } from "./adService.js";
-import handleError from "./handleError.js";
+import Logger from "../packages/Logger.js";
 const { TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSIONS_ID, OPEN_AI_KEY, OPEN_AI_ORG_ID, OPEN_AI_PROJECT_ID, } = process.env;
 const telegramBot = new TelegramBot(Number(TELEGRAM_API_ID), TELEGRAM_API_HASH, TELEGRAM_SESSIONS_ID);
 const gptClient = new GPTClient(OPEN_AI_KEY, OPEN_AI_ORG_ID, OPEN_AI_PROJECT_ID);
+const logger = new Logger({ service: "PARSE DATA SERVICE" });
 export function startBot() {
     telegramBot.startBot();
 }
@@ -15,11 +18,22 @@ async function getNormalizedData(message) {
         const response = await gptClient.parseMessage(message);
         if (response) {
             const ads = JSON.parse(response);
+            logger.infoLogging({
+                message: "[Successfully Normalized]\n",
+            });
             return ads;
         }
     }
     catch (error) {
-        handleError(error);
+        if (error instanceof OpenAI.APIError) {
+            const message = `[Failed To Normalized] \n ${error.message}\n`;
+            logger.errorLogging({
+                message: message,
+            });
+        }
+        else {
+            console.error("[Failed To Normalized]: Unknown error occur: " + error);
+        }
     }
 }
 async function getMediaUrl(data, title) {
@@ -36,7 +50,15 @@ async function getMediaUrl(data, title) {
         }
     }
     catch (error) {
-        handleError(error);
+        if (error instanceof S3ServiceException) {
+            const message = `[Failed To GetURL] \n[Name]: ${error.name} \n[Message]: ${error.message}`;
+            logger.errorLogging({
+                message: message,
+            });
+        }
+        else {
+            console.error("[Failed To GetURL]: Unknown error occur: " + error);
+        }
     }
 }
 async function removeMedia(urls, title) {
@@ -44,9 +66,8 @@ async function removeMedia(urls, title) {
         const pattern = new RegExp(/[\s\p{P}]+/gu);
         const convertTitle = title.replace(pattern, "_").toLowerCase();
         if (urls.length > 1) {
-            const keys = urls.map((url) => {
-                let prefixIdx = 1;
-                const startIndex = url.indexOf(convertTitle + "_" + prefixIdx++);
+            const keys = urls.sort().map((url, i) => {
+                const startIndex = url.indexOf(convertTitle + "_" + (i + 1));
                 const key = url.substring(startIndex, url.length);
                 return key;
             });
@@ -60,7 +81,15 @@ async function removeMedia(urls, title) {
         }
     }
     catch (error) {
-        handleError(error);
+        if (error instanceof S3ServiceException) {
+            const message = `[Failed To Remove Media] \n[Name]: ${error.name} \n[Message]: ${error.message}`;
+            logger.errorLogging({
+                message: message,
+            });
+        }
+        else {
+            console.error("[Failed To Remove Media]: Unknown error occur: " + error);
+        }
     }
 }
 export async function parseData() {
@@ -93,11 +122,27 @@ export async function parseData() {
                 };
                 if (mediaUrl) {
                     const response = await createNewAd(newAd, mediaUrl);
+                    if (!response) {
+                        removeMedia(mediaUrl, newAd.title);
+                    }
+                    else {
+                        logger.infoLogging({
+                            message: "Successfully Parse Data\n",
+                        });
+                    }
                 }
             }
         });
     }
     catch (error) {
-        handleError(error);
+        if (error instanceof Error) {
+            const message = `[Failed To ParseData] \n[Name]: ${error.name} \n[Message]: ${error.message}`;
+            logger.errorLogging({
+                message: message,
+            });
+        }
+        else {
+            console.error("[Failed To Parse Data]: Unknown error occur: " + error);
+        }
     }
 }

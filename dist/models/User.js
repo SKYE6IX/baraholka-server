@@ -12,19 +12,6 @@ class User {
         });
         return existUser;
     }
-    static async deletUser(telegramId) {
-        const result = await prismaClient.user.update({
-            where: {
-                telegramId: telegramId,
-            },
-            data: {
-                ads: {
-                    deleteMany: {},
-                },
-            },
-        });
-        return result;
-    }
     async insertNewUser() {
         const user = await prismaClient.user.create({
             data: {

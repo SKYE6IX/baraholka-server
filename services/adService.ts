@@ -1,6 +1,9 @@
+import { Prisma } from "@prisma/client";
 import Ad from "models/Ad";
 import { BaseAd } from "types/ad";
-import handleError from "./handleError";
+import Logger from "packages/Logger";
+
+const logger = new Logger({ service: "USER SERVICE" });
 
 export async function createNewAd(adData: BaseAd, urls: string[]) {
     if (!adData || !urls) {
@@ -14,10 +17,40 @@ export async function createNewAd(adData: BaseAd, urls: string[]) {
             };
         });
         const response = await newAd.insertNewAd(imagesUrl);
-        console.log("Successfully add new AD to Database");
+        logger.infoLogging({
+            message: "[Successfully Added New Ad]\n",
+        });
         return response;
     } catch (error) {
-        handleError(error);
-        console.log("Failed to add AD to database ");
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            const message = `[Failed To Create New Ad]\n${error.message}`;
+            logger.errorLogging({
+                message: message,
+            });
+        } else {
+            console.error("[Unknown Error Occur In Create New Ad]:\n" + error);
+        }
+    }
+}
+
+export async function removeAd(adsId: string) {
+    if (!adsId) {
+        return;
+    }
+    try {
+        const response = await Ad.removeAd(adsId);
+        logger.infoLogging({
+            message: "[Successfully Remove Ad]\n",
+        });
+        return response;
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            const message = `[Failed To Remove Ad]\n${error.message}`;
+            logger.errorLogging({
+                message: message,
+            });
+        } else {
+            console.error("[Unknown Error Occur In Remove Ad]:\n" + error);
+        }
     }
 }
