@@ -5,49 +5,29 @@ class Logger {
     constructor({ service }: { service: string }) {
         const { combine, timestamp, printf, colorize } = winston.format;
         const logFormat = printf(({ level, message, timestamp }) => {
-            return `${service}:\n [${timestamp}] [${level}]: ${message}`;
+            return `[${timestamp}] [${level}] [${service}]: ${message}`;
         });
         this.logger = winston.createLogger({
-            level: "info",
             defaultMeta: { service: service },
             format: combine(
                 timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
                 colorize(),
                 logFormat
             ),
+            transports: [
+                new winston.transports.File({ filename: "info.log", level: "info" }),
+                new winston.transports.File({ filename: "error.log", level: "error" }),
+                new winston.transports.Console(),
+            ],
         });
     }
 
-    private logToConsole() {
-        if (process.env.NODE_ENV !== "production") {
-            this.logger.add(new winston.transports.Console());
-        }
-    }
     public infoLogging({ message }: { message: string }) {
-        this.logToConsole();
-        this.logger.add(
-            new winston.transports.File({
-                filename: "info.log",
-                level: "info",
-            })
-        );
-        this.logger.log({
-            level: "info",
-            message: message,
-        });
+        this.logger.info(message);
     }
+
     public errorLogging({ message }: { message: string }) {
-        this.logToConsole();
-        this.logger.add(
-            new winston.transports.File({
-                filename: "error.log",
-                level: "error",
-            })
-        );
-        this.logger.log({
-            level: "error",
-            message: message,
-        });
+        this.logger.error(message);
     }
 }
 

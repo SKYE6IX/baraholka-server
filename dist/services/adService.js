@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import Ad from "../models/Ad.js";
 import Logger from "../packages/Logger.js";
-const logger = new Logger({ service: "USER SERVICE" });
+const logger = new Logger({ service: "ADs SERVICE" });
 export async function createNewAd(adData, urls) {
     if (!adData || !urls) {
         return;

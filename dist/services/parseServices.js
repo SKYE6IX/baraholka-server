@@ -13,20 +13,20 @@ const logger = new Logger({ service: "PARSE DATA SERVICE" });
 export function startBot() {
     telegramBot.startBot();
 }
-async function getNormalizedData(message) {
+export async function getNormalizedData(message) {
     try {
         const response = await gptClient.parseMessage(message);
         if (response) {
             const ads = JSON.parse(response);
             logger.infoLogging({
-                message: "[Successfully Normalized]\n",
+                message: "[Successfully Normalized!]\n",
             });
             return ads;
         }
     }
     catch (error) {
         if (error instanceof OpenAI.APIError) {
-            const message = `[Failed To Normalized] \n ${error.message}\n`;
+            const message = `[Failed To Normalized]\n ${error.message}\n`;
             logger.errorLogging({
                 message: message,
             });
@@ -42,10 +42,16 @@ async function getMediaUrl(data, title) {
         if (data.photo) {
             const url = (await S3.uploadSingleImage(data.photo, title));
             tempArray.push(url);
+            logger.infoLogging({
+                message: "[Successfully get media url!]\n",
+            });
             return tempArray;
         }
         else if (data.photos) {
             const urlList = (await S3.uploadMultipleImage(data.photos, title));
+            logger.infoLogging({
+                message: "[Successfully get media urls!]\n",
+            });
             return urlList;
         }
     }
@@ -95,6 +101,9 @@ async function removeMedia(urls, title) {
 export async function parseData() {
     try {
         telegramBot.runNewMessageEvent(async (messageData) => {
+            logger.infoLogging({
+                message: "[Starting parse data...]\n",
+            });
             const userData = messageData.user;
             const adsData = await getNormalizedData(messageData.message);
             if (adsData) {
@@ -127,7 +136,7 @@ export async function parseData() {
                     }
                     else {
                         logger.infoLogging({
-                            message: "Successfully Parse Data\n",
+                            message: "[Successfully Parse Data!]\n",
                         });
                     }
                 }

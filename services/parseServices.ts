@@ -32,19 +32,19 @@ export function startBot() {
     telegramBot.startBot();
 }
 
-async function getNormalizedData(message: string) {
+export async function getNormalizedData(message: string) {
     try {
         const response = await gptClient.parseMessage(message);
         if (response) {
             const ads = JSON.parse(response) as ResolveParseData;
             logger.infoLogging({
-                message: "[Successfully Normalized]\n",
+                message: "[Successfully Normalized!]\n",
             });
             return ads;
         }
     } catch (error) {
         if (error instanceof OpenAI.APIError) {
-            const message = `[Failed To Normalized] \n ${error.message}\n`;
+            const message = `[Failed To Normalized]\n ${error.message}\n`;
             logger.errorLogging({
                 message: message,
             });
@@ -60,12 +60,18 @@ async function getMediaUrl(data: NewMessageData, title: string) {
         if (data.photo) {
             const url = (await S3.uploadSingleImage(data.photo, title)) as string;
             tempArray.push(url);
+            logger.infoLogging({
+                message: "[Successfully get media url!]\n",
+            });
             return tempArray;
         } else if (data.photos) {
             const urlList = (await S3.uploadMultipleImage(
                 data.photos,
                 title
             )) as string[];
+            logger.infoLogging({
+                message: "[Successfully get media urls!]\n",
+            });
             return urlList;
         }
     } catch (error) {
@@ -112,6 +118,9 @@ async function removeMedia(urls: string[], title: string) {
 export async function parseData() {
     try {
         telegramBot.runNewMessageEvent(async (messageData) => {
+            logger.infoLogging({
+                message: "[Starting parse data...]\n",
+            });
             const userData = messageData.user as User;
             const adsData = await getNormalizedData(messageData.message);
             if (adsData) {
@@ -142,7 +151,7 @@ export async function parseData() {
                         removeMedia(mediaUrl, newAd.title);
                     } else {
                         logger.infoLogging({
-                            message: "Successfully Parse Data\n",
+                            message: "[Successfully Parse Data!]\n",
                         });
                     }
                 }

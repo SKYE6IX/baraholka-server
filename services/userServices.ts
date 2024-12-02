@@ -12,7 +12,7 @@ export async function isUserExist(userData: BaseUser) {
     try {
         const existingUser = await User.existingUser(userData.telegramId);
         logger.infoLogging({
-            message: "[Successfully Found User]",
+            message: "[Successfully Found User!]\n",
         });
         return existingUser;
     } catch (error) {
@@ -35,7 +35,7 @@ export async function createNewUser(userData: BaseUser) {
         const user = new User(userData);
         const newUser = await user.insertNewUser();
         logger.infoLogging({
-            message: "[Successfully Added New User]\n",
+            message: "[Successfully Added New User!]\n",
         });
         return newUser;
     } catch (error) {

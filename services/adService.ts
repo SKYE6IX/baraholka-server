@@ -3,7 +3,7 @@ import Ad from "models/Ad";
 import { BaseAd } from "types/ad";
 import Logger from "packages/Logger";
 
-const logger = new Logger({ service: "USER SERVICE" });
+const logger = new Logger({ service: "ADs SERVICE" });
 
 export async function createNewAd(adData: BaseAd, urls: string[]) {
     if (!adData || !urls) {
