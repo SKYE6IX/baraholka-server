@@ -1,6 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const requiredServerEnvs = [
     "NODE_ENV",
+    "PORT",
+    "SESSION_SECRET",
+    "FRONTEND_URL",
     "OPEN_AI_KEY",
     "OPEN_AI_PROJECT_ID",
     "OPEN_AI_ORG_ID",

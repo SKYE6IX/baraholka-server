@@ -3,10 +3,11 @@ import ExpressServer from "./packages/ExpressServer";
 import S3 from "packages/S3";
 import { startBot, parseData } from "services/parseServices";
 
-const PORT = 3000;
-
 // Instance for the Server
-const server = new ExpressServer(PORT);
+const server = new ExpressServer();
+
+// Run App Configurations
+server.setAppConfig();
 
 // AWS S3 instance
 new S3();
