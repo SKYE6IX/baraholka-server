@@ -9,3 +9,4 @@ const pool = new Pool({ connectionString });
 const adapter = new PrismaNeon(pool);
 const prismaClient = new PrismaClient({ adapter });
 export default prismaClient;
+//# sourceMappingURL=index.js.map

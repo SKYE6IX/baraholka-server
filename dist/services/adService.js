@@ -54,3 +54,4 @@ export async function removeAd(adsId) {
         }
     }
 }
+//# sourceMappingURL=adService.js.map

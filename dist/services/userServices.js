@@ -15,7 +15,7 @@ export async function isUserExist(userData) {
     }
     catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            const message = `[Failed To Find Exist User]\n ${error.message}`;
+            const message = `[Failed To Find Existing User]\n ${error.message}`;
             logger.errorLogging({
                 message: message,
             });
@@ -49,3 +49,4 @@ export async function createNewUser(userData) {
         }
     }
 }
+//# sourceMappingURL=userServices.js.map

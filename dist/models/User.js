@@ -23,3 +23,4 @@ class User {
     }
 }
 export default User;
+//# sourceMappingURL=User.js.map

@@ -31,3 +31,4 @@ GPTClient.userPrompt = `
         If you can't generate ad from the text, return a null. :\n
         `;
 export default GPTClient;
+//# sourceMappingURL=GPTClient.js.map

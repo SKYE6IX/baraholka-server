@@ -1,0 +1,1 @@
+{"version":3,"file":"user.js","sourceRoot":"/","sources":["types/user.ts"],"names":[],"mappings":"AAAA,0BAA0B","sourcesContent":["// Type interface for user\n\nexport interface BaseUser {\n    telegramId: bigint;\n    userName: string;\n}\n\nexport interface User extends BaseUser {\n    id: string;\n}\n"]}

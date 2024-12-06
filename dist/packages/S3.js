@@ -82,3 +82,4 @@ class S3 {
     }
 }
 export default S3;
+//# sourceMappingURL=S3.js.map

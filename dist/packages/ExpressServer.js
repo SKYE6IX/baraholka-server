@@ -4,6 +4,7 @@ import cors from "cors";
 import expressSession from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { PrismaClient } from "@prisma/client";
+import * as Sentry from "@sentry/node";
 import passport from "passport";
 class ExpressServer {
     constructor() {
@@ -56,6 +57,20 @@ class ExpressServer {
         this.app.use(this.setSession());
         this.setPassportConfig();
     }
+    routes(route) {
+        this.app.use(route);
+        this.app.use("/debug-sentry", (req, res) => {
+            res.send("Hello Sanity");
+            throw new Error("Testing Sentry Error");
+        });
+    }
+    defaultErrorHandler() {
+        Sentry.setupExpressErrorHandler(this.app);
+        this.app.use((err, req, res, next) => {
+            res.statusCode = 500;
+            res.end(res.sentry + "\n");
+        });
+    }
     startServer() {
         this.serverHandler.listen(this.PORT, () => {
             console.log("Server start running on port " + this.PORT);
@@ -63,3 +78,4 @@ class ExpressServer {
     }
 }
 export default ExpressServer;
+//# sourceMappingURL=ExpressServer.js.map

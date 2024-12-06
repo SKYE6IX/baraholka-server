@@ -1,10 +1,12 @@
-import express, { Express } from "express";
+import express, { Express, Router, Request, Response, NextFunction } from "express";
 import http, { Server } from "http";
 import cors, { CorsOptions } from "cors";
 import expressSession, { SessionOptions } from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { PrismaClient } from "@prisma/client";
+import * as Sentry from "@sentry/node";
 import passport from "passport";
+
 class ExpressServer {
     private app: Express;
     private serverHandler: Server;
@@ -61,6 +63,18 @@ class ExpressServer {
         this.app.use(this.setCors());
         this.app.use(this.setSession());
         this.setPassportConfig();
+    }
+
+    public routes(route: Router) {
+        this.app.use(route);
+    }
+
+    public defaultErrorHandler() {
+        Sentry.setupExpressErrorHandler(this.app);
+        this.app.use((err, req: Request, res: Response, next: NextFunction) => {
+            res.statusCode = 500;
+            res.end(res.sentry + "\n");
+        });
     }
 
     public startServer() {

@@ -23,3 +23,4 @@ class Logger {
     }
 }
 export default Logger;
+//# sourceMappingURL=Logger.js.map

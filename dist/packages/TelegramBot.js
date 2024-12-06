@@ -82,3 +82,4 @@ class TelegramBot {
     }
 }
 export default TelegramBot;
+//# sourceMappingURL=TelegramBot.js.map

@@ -47,3 +47,4 @@ class Ad {
     }
 }
 export default Ad;
+//# sourceMappingURL=Ad.js.map

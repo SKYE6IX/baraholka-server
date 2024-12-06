@@ -11,10 +11,19 @@
         "strict": true,
         "skipLibCheck": true,
         "baseUrl": ".",
+
         "paths": {
             "telegram/sessions": ["node_modules/telegram/sessions"],
             "telegram/events": ["node_modules/telegram/events"]
-        }
+        },
+
+        "sourceMap": true,
+        "inlineSources": true,
+
+        // Set `sourceRoot` to  "/" to strip the build path prefix
+        // from generated source code references.
+        // This improves issue grouping in Sentry.
+        "sourceRoot": "/"
     },
     "tsc-alias": {
         "resolveFullPaths": true
