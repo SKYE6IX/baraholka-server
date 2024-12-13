@@ -41,6 +41,8 @@ export async function getNormalizedData(message: string) {
                 message: "[Successfully Normalized!]\n",
             });
             return ads;
+        } else {
+            return;
         }
     } catch (error) {
         if (error instanceof OpenAI.APIError) {
@@ -155,6 +157,8 @@ export async function parseData() {
                         });
                     }
                 }
+            } else {
+                return;
             }
         });
     } catch (error) {

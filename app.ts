@@ -5,6 +5,7 @@ import ExpressServer from "./packages/ExpressServer";
 import S3 from "packages/S3";
 import { startBot, parseData } from "services/parseServices";
 import authRouter from "routes/auth";
+// import { removeAd } from "services/adService";
 
 // Instance for the Server
 const server = new ExpressServer();
@@ -20,6 +21,13 @@ startBot();
 
 // Parsing data from gramJs and turning into ads
 parseData();
+// (async () => {
+//     try {
+//         removeAd("e005a373-5f8f-4e19-a981-e820df69ef72");
+//     } catch (error) {
+//         console.error(error);
+//     }
+// })();
 
 server.routes(authRouter);
 

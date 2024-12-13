@@ -59,10 +59,6 @@ class ExpressServer {
     }
     routes(route) {
         this.app.use(route);
-        this.app.use("/debug-sentry", (req, res) => {
-            res.send("Hello Sanity");
-            throw new Error("Testing Sentry Error");
-        });
     }
     defaultErrorHandler() {
         Sentry.setupExpressErrorHandler(this.app);

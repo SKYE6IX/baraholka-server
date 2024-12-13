@@ -23,6 +23,9 @@ export async function getNormalizedData(message) {
             });
             return ads;
         }
+        else {
+            return;
+        }
     }
     catch (error) {
         if (error instanceof OpenAI.APIError) {
@@ -140,6 +143,9 @@ export async function parseData() {
                         });
                     }
                 }
+            }
+            else {
+                return;
             }
         });
     }
