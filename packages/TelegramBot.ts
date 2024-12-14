@@ -14,6 +14,7 @@ class TelegramBot {
     constructor(apiId: number, apiHash: string, sessionsId: string) {
         this.client = new TelegramClient(new StringSession(sessionsId), apiId, apiHash, {
             connectionRetries: 5,
+
             useWSS: true,
         });
     }

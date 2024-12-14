@@ -7,9 +7,7 @@ Sentry.init({
     // Tracing
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
 });
-
 Sentry.profiler.startProfiler();
-
 Sentry.startSpan(
     {
         name: "My First Transaction",
@@ -18,5 +16,4 @@ Sentry.startSpan(
         // the code executing inside the transaction will be wrapped in a span and profiled
     }
 );
-
 Sentry.profiler.stopProfiler();
