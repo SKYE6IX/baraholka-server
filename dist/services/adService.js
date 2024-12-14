@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import Ad from "../models/Ad.js";
 import Logger from "../packages/Logger.js";
+import { sentryInfo, sentryError } from "./sentryHandlers.js";
 const logger = new Logger({ service: "ADs SERVICE" });
 export async function createNewAd(adData, urls) {
     if (!adData || !urls) {
@@ -17,6 +18,7 @@ export async function createNewAd(adData, urls) {
         logger.infoLogging({
             message: "[Successfully Added New Ad]\n",
         });
+        sentryInfo({ message: "[Successfully Added New Ad!]" });
         return response;
     }
     catch (error) {
@@ -25,6 +27,7 @@ export async function createNewAd(adData, urls) {
             logger.errorLogging({
                 message: message,
             });
+            sentryError({ message });
         }
         else {
             console.error("[Unknown Error Occur In Create New Ad]:\n" + error);

@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import Ad from "models/Ad";
 import { BaseAd } from "types/ad";
 import Logger from "packages/Logger";
+import { sentryInfo, sentryError } from "./sentryHandlers";
 
 const logger = new Logger({ service: "ADs SERVICE" });
 
@@ -20,6 +21,7 @@ export async function createNewAd(adData: BaseAd, urls: string[]) {
         logger.infoLogging({
             message: "[Successfully Added New Ad]\n",
         });
+        sentryInfo({ message: "[Successfully Added New Ad!]" });
         return response;
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -27,6 +29,7 @@ export async function createNewAd(adData: BaseAd, urls: string[]) {
             logger.errorLogging({
                 message: message,
             });
+            sentryError({ message });
         } else {
             console.error("[Unknown Error Occur In Create New Ad]:\n" + error);
         }

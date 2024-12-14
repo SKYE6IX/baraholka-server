@@ -9,6 +9,7 @@ import { User } from "types/user";
 import { BaseAd } from "types/ad";
 import { NewMessageData, ResolveParseData } from "types/parseData";
 import Logger from "packages/Logger";
+import { sentryInfo, sentryError, sentrySuccessLog } from "./sentryHandlers";
 
 const {
     TELEGRAM_API_ID,
@@ -40,6 +41,7 @@ export async function getNormalizedData(message: string) {
             logger.infoLogging({
                 message: "[Successfully Normalized!]\n",
             });
+            sentryInfo({ message: "[Successfully Normalized!]" });
             return ads;
         } else {
             return;
@@ -50,6 +52,7 @@ export async function getNormalizedData(message: string) {
             logger.errorLogging({
                 message: message,
             });
+            sentryError({ message });
         } else {
             console.error("[Failed To Normalized]: Unknown error occur: " + error);
         }
@@ -65,6 +68,7 @@ async function getMediaUrl(data: NewMessageData, title: string) {
             logger.infoLogging({
                 message: "[Successfully get media url!]\n",
             });
+            sentryInfo({ message: "[Successfully get media url!]" });
             return tempArray;
         } else if (data.photos) {
             const urlList = (await S3.uploadMultipleImage(
@@ -74,6 +78,7 @@ async function getMediaUrl(data: NewMessageData, title: string) {
             logger.infoLogging({
                 message: "[Successfully get media urls!]\n",
             });
+            sentryInfo({ message: "[Successfully get media url!]" });
             return urlList;
         }
     } catch (error) {
@@ -82,6 +87,7 @@ async function getMediaUrl(data: NewMessageData, title: string) {
             logger.errorLogging({
                 message: message,
             });
+            sentryError({ message });
         } else {
             console.error("[Failed To GetURL]: Unknown error occur: " + error);
         }
@@ -123,6 +129,7 @@ export async function parseData() {
             logger.infoLogging({
                 message: "[Starting parse data...]\n",
             });
+            sentryInfo({ message: "[Starting parse data...]" });
             const userData = messageData.user as User;
             const adsData = await getNormalizedData(messageData.message);
             if (adsData) {
@@ -152,9 +159,16 @@ export async function parseData() {
                     if (!response) {
                         removeMedia(mediaUrl, newAd.title);
                     } else {
+                        const message =
+                            "Message parse: " +
+                            messageData.message +
+                            " -> Final result: " +
+                            JSON.stringify(response);
+                        sentrySuccessLog({ message });
                         logger.infoLogging({
                             message: "[Successfully Parse Data!]\n",
                         });
+                        sentryInfo({ message: "[Successfully Parse Data!]" });
                     }
                 }
             } else {
@@ -167,6 +181,7 @@ export async function parseData() {
             logger.errorLogging({
                 message: message,
             });
+            sentryError({ message });
         } else {
             console.error("[Failed To Parse Data]: Unknown error occur: " + error);
         }

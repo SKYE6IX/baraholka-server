@@ -9,8 +9,8 @@ class Logger {
             defaultMeta: { service: service },
             format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), colorize(), logFormat),
             transports: [
-                new winston.transports.File({ filename: "info.log", level: "info" }),
-                new winston.transports.File({ filename: "error.log", level: "error" }),
+                // new winston.transports.File({ filename: "info.log", level: "info" }),
+                // new winston.transports.File({ filename: "error.log", level: "error" }),
                 new winston.transports.Console(),
             ],
         });

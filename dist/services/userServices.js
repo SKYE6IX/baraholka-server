@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import User from "../models/User.js";
 import Logger from "../packages/Logger.js";
+import { sentryInfo, sentryError } from "./sentryHandlers.js";
 const logger = new Logger({ service: "USER SERVICE" });
 export async function isUserExist(userData) {
     if (!userData.telegramId) {
@@ -11,6 +12,7 @@ export async function isUserExist(userData) {
         logger.infoLogging({
             message: "[Successfully Found User!]\n",
         });
+        sentryInfo({ message: "[Successfully Found User!]" });
         return existingUser;
     }
     catch (error) {
@@ -19,6 +21,7 @@ export async function isUserExist(userData) {
             logger.errorLogging({
                 message: message,
             });
+            sentryError({ message });
         }
         else {
             console.error("[Unknown Error Occur In Find User]:\n" + error);
@@ -35,6 +38,7 @@ export async function createNewUser(userData) {
         logger.infoLogging({
             message: "[Successfully Added New User!]\n",
         });
+        sentryInfo({ message: "[Successfully Added New User!]" });
         return newUser;
     }
     catch (error) {
@@ -43,6 +47,7 @@ export async function createNewUser(userData) {
             logger.errorLogging({
                 message: message,
             });
+            sentryError({ message });
         }
         else {
             console.error("[Unknown Error Occur In Create New User]:\n" + error);
