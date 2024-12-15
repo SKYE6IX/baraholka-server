@@ -19,6 +19,8 @@ new S3();
 // Starting gramJS bot for telegram
 startBot();
 
+console.log("HEllo world ");
+
 // Parsing data from gramJs and turning into ads
 parseData();
 
