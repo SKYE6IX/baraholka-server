@@ -15,11 +15,11 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=cache,target=/root/.npm \
     npm ci --include=dev
 
+COPY . .
+
 RUN chown -R node:node /app
 
 USER node   
-
-COPY . .
 
 RUN npx prisma generate
 
@@ -32,11 +32,11 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=cache,target=/root/.npm \
     npm ci --omit=dev
 
+COPY . .
+
 RUN chown -R node:node /app
 
 USER node
-
-COPY . .
 
 RUN npx prisma generate
 

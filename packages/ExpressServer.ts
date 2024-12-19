@@ -73,7 +73,7 @@ class ExpressServer {
         Sentry.setupExpressErrorHandler(this.app);
         this.app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
             res.statusCode = 500;
-            res.end(res.sentry + "\n");
+            // res.end(res.sentry + "\n");
         });
     }
 

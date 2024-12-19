@@ -2,3 +2,4 @@
 .env
 # Sentry Config File
 .sentryclirc
+/envs_text

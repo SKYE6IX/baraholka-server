@@ -7,8 +7,8 @@ import { createNewUser, isUserExist } from "./userServices.js";
 import { createNewAd } from "./adService.js";
 import Logger from "../packages/Logger.js";
 import { sentryInfo, sentryError, sentrySuccessLog } from "./sentryHandlers.js";
-const { TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSIONS_ID, OPEN_AI_KEY, OPEN_AI_ORG_ID, OPEN_AI_PROJECT_ID, } = process.env;
-const telegramBot = new TelegramBot(Number(TELEGRAM_API_ID), TELEGRAM_API_HASH, TELEGRAM_SESSIONS_ID);
+const { TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSION_ID, OPEN_AI_KEY, OPEN_AI_ORG_ID, OPEN_AI_PROJECT_ID, } = process.env;
+const telegramBot = new TelegramBot(Number(TELEGRAM_API_ID), TELEGRAM_API_HASH, TELEGRAM_SESSION_ID);
 const gptClient = new GPTClient(OPEN_AI_KEY, OPEN_AI_ORG_ID, OPEN_AI_PROJECT_ID);
 const logger = new Logger({ service: "PARSE DATA SERVICE" });
 export function startBot() {

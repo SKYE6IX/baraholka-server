@@ -5,7 +5,7 @@
     "main": "/dist/app.js",
     "type": "module",
     "scripts": {
-        "build": "rimraf dist && npx tsc && tsc-alias && npm run sentry:sourcemaps",
+        "build": "rimraf dist && npx tsc && tsc-alias",
         "start": "node dist/app.js",
         "dev": "concurrently \"tsc -w\" \"tsc-alias -w\" \"nodemon dist/app.js\"",
         "lint": "npx eslint **/*.ts",

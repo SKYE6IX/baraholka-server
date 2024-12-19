@@ -10,21 +10,23 @@ import { BaseAd } from "types/ad";
 import { NewMessageData, ResolveParseData } from "types/parseData";
 import Logger from "packages/Logger";
 import { sentryInfo, sentryError, sentrySuccessLog } from "./sentryHandlers";
-import getSecretValue from "util/getSecretValue";
 
-const telegramApiId = getSecretValue("TELEGRAM_API_ID");
-const telegramApiHash = getSecretValue("TELEGRAM_API_HASH");
-const telegramApiSession = getSecretValue("TELEGRAM_SESSIONS_ID");
-const openAiKey = getSecretValue("OPEN_AI_KEY");
-const openAiOrgId = getSecretValue("OPEN_AI_ORG_ID");
-const openAiProjectId = getSecretValue("OPEN_AI_PROJECT_ID");
+const {
+    TELEGRAM_API_ID,
+    TELEGRAM_API_HASH,
+    TELEGRAM_SESSION_ID,
+    OPEN_AI_KEY,
+    OPEN_AI_ORG_ID,
+    OPEN_AI_PROJECT_ID,
+} = process.env;
 
 const telegramBot = new TelegramBot(
-    Number(telegramApiId),
-    telegramApiHash,
-    telegramApiSession
+    Number(TELEGRAM_API_ID),
+    TELEGRAM_API_HASH,
+    TELEGRAM_SESSION_ID
 );
-const gptClient = new GPTClient(openAiKey, openAiOrgId, openAiProjectId);
+
+const gptClient = new GPTClient(OPEN_AI_KEY, OPEN_AI_ORG_ID, OPEN_AI_PROJECT_ID);
 
 const logger = new Logger({ service: "PARSE DATA SERVICE" });
 

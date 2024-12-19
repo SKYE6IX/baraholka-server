@@ -9,7 +9,7 @@ const requiredServerEnvs = [
     "OPEN_AI_ORG_ID",
     "TELEGRAM_API_ID",
     "TELEGRAM_API_HASH",
-    "TELEGRAM_SESSIONS_ID",
+    "TELEGRAM_SESSION_ID",
     "DATABASE_URL",
     "DIRECT_URL",
     "AWS_ACCESS_KEY_ID",
