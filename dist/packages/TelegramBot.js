@@ -10,7 +10,6 @@ class TelegramBot {
         this.multiMediaAds = new Map();
         this.client = new TelegramClient(new StringSession(sessionsId), apiId, apiHash, {
             connectionRetries: 5,
-            useWSS: true,
         });
     }
     async startBot() {
