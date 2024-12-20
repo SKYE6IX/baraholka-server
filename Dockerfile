@@ -40,4 +40,4 @@ USER node
 
 RUN npx prisma generate
 
-ENTRYPOINT [ "./docker-entrypoint.sh" ]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
