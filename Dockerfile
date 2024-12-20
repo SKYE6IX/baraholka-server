@@ -36,6 +36,8 @@ COPY . .
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
+RUN chmod +x /docker-entrypoint.sh
+
 RUN chown -R node:node /app
 
 USER node
