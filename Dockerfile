@@ -34,12 +34,12 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 COPY . .
 
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
 RUN chown -R node:node /app
 
 USER node
 
 RUN npx prisma generate
-
-COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
