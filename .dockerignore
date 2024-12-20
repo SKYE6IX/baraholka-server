@@ -10,6 +10,5 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 **/build
-docker-entrypoint.sh
 LICENSE
 README.md
