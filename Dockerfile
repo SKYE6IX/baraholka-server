@@ -40,4 +40,6 @@ USER node
 
 RUN npx prisma generate
 
+RUN npx prisma migrate deploy
+
 CMD ["node", "dist/app.js"]
