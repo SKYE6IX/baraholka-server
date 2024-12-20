@@ -1,5 +1,7 @@
 #!/bin/bash
 
-npx prisma migrate deploy
+# npx prisma migrate deploy
 
-node dist/app.js
+# node dist/app.js
+
+npm run dev
